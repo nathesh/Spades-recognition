@@ -90,10 +90,10 @@ if __name__ == '__main__':
 
     training = get_training(
         training_labels_filename, training_image_filename, num_training_cards)
-    f = open('training/train.csv', 'w')
+    f = open('training/trained.csv', 'w')
     writer = csv.writer(f)
     for key in training:
         test = training[key]
-        x, y = test[1].shape
-        writer.writerow([test[0], [x, y], test[1].flatten()])
+        cv2.imwrite("training/"+str(key)+".jpg",test[1])
+        writer.writerow([test[0]])
     f.close()
