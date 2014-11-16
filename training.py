@@ -1,4 +1,4 @@
-
+    
 import sys
 import numpy as np
 import cv2
@@ -26,7 +26,10 @@ def rectify(h):
     return hnew
 
 
-def preprocess(img):
+def preprocess(img,rotate=0):
+    rows,cols,__ = img.shape
+    M = cv2.getRotationMatrix2D((cols/2,rows/2),rotate,1)
+    img = cv2.warpAffine(img,M,(cols,rows))
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 2)
     thresh = cv2.adaptiveThreshold(blur, 255, 1, 1, 11, 1)
@@ -77,7 +80,8 @@ def get_training(training_labels_filename, training_image_filename, num_training
     im = cv2.imread(training_image_filename)
     for i, c in enumerate(getCards(im, num_training_cards)):
         if avoid_cards is None or (labels[i][0] not in avoid_cards[0] and labels[i][1] not in avoid_cards[1]):
-            training[i] = (labels[i], preprocess(c))
+            training[i*2] = (labels[i], preprocess(c,0))
+            training[i*2+1] = (labels[i], preprocess(c,90))
 
     print "Done training"
     return training
