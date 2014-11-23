@@ -2,13 +2,14 @@ import sys
 import numpy as np
 import cv2
 import csv
-
+from collections import namedtuple
 ###############################################################################
 # Utility code from
 # http://git.io/vGi60A
 # Thanks to author of the sudoku example for the wonderful blog posts!
 ###############################################################################
 
+Card = namedtuple('Card', 'number, suit')
 
 def rectify(h):
     h = h.reshape((4, 2))
@@ -62,16 +63,14 @@ def getCards(im, numcards=4):
         thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:numcards]
-    print len(contours[0])
+  
     for card in contours:
         peri = cv2.arcLength(card, True)
-        print np.size(cv2.approxPolyDP(card, 0.02 * peri, True))
         try:
             approx = rectify(cv2.approxPolyDP(card, 0.02 * peri, True))
         except ValueError:
             break
 
-        print "done"
         # box = np.int0(approx)
         # cv2.drawContours(im,[box],0,(255,255,0),6)
         # imx = cv2.resize(im,(1000,600))
@@ -101,54 +100,64 @@ def get_trained_dataset(training_file):
             i += 1
         return training
 
+def findcard(frame,filename=None):
+    print 'false'
+    num_cards = 4
+    im = frame
+    width = im.shape[0]
+    height = im.shape[1]
+    if width < height:
+        im = cv2.transpose(im)
+        im = cv2.flip(im, 1)
+    cards = [find_closest_card(training, c)
+        for c in getCards(im, num_cards)]
+    print type(cards)
+    for c in cards:
+        print c.number, c.suit
+    print "DONE!", cards[0].number
+
+
+
 if __name__ == '__main__':
-    filename = "test/roundFlash.avi"
     test_filename = "training/trained.csv"
-    cap = cv2.VideoCapture(filename)
+    training = get_trained_dataset(test_filename)
+    """
+    cap = cv2.VideoCapture("http://172.16.4.109:8080/shot.jpg")
+    #filename = "test/round_no_flash.avi"
+    #cap = c2.VideoCapture(filename)
+    skip = 0
     while(1):
-        print 1
         ret, frame = cap.read()
         if ret is True:
-            print 'array'
-            num_cards = 4
-            im = cv2.imread(filename)
-            im = frame
-            width = im.shape[0]
-            height = im.shape[1]
-            if width < height:
-                im = cv2.transpose(im)
-                im = cv2.flip(im, 1)
+
+            if skip % 50 == 0:
+                findcard(frame)
+            skip +=1
+    
+
+            cv2.imshow("images", frame)
+
+
+            # if the 'q' key is pressed, stop the loop
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+
 
             # Debug: uncomment to see registered images
             # for i,c in enumerate(getCards(im,num_cards)):
             #   card = find_closest_card(training,c,)
             #   cv2.imshow(str(card),c)
             # cv2.waitKey(0)
-            training = get_trained_dataset(test_filename)
-            cards = [find_closest_card(training, c)
-                     for c in getCards(im, num_cards)]
-            print cards
+            
+           
         else:
-            print 'why break so early'
-            break
-    cap.release()
-    filename = "test/photo_1.JPG"
-    print 'test'
-    num_cards = 4
-    im = cv2.imread(filename)
-    width = im.shape[0]
-    height = im.shape[1]
-    if width < height:
-        im = cv2.transpose(im)
-        im = cv2.flip(im, 1)
-
-    # Debug: uncomment to see registered images
-    # for i,c in enumerate(getCards(im,num_cards)):
-    #   card = find_closest_card(training,c,)
-    #   cv2.imshow(str(card),c)
-    # cv2.waitKey(0)
-    training = get_trained_dataset(test_filename)
-    cards = [find_closest_card(training, c)
-             for c in getCards(im, num_cards)]
-    print cards
+           break
+    cap.release()"""
+    print "DONE with training"
     
+    img = cv2.imread('test/photo_1.JPG')
+    findcard(img)
+    print '************DONE!***************'
+    
+
+
