@@ -101,7 +101,6 @@ def get_trained_dataset(training_file):
         return training
 
 def findcard(frame,filename=None):
-    print 'false'
     num_cards = 4
     im = frame
     width = im.shape[0]
@@ -111,36 +110,30 @@ def findcard(frame,filename=None):
         im = cv2.flip(im, 1)
     cards = [find_closest_card(training, c)
         for c in getCards(im, num_cards)]
-    print type(cards)
+
     for c in cards:
         print c.number, c.suit
-    print "DONE!", cards[0].number
-
-
 
 if __name__ == '__main__':
     test_filename = "training/trained.csv"
     training = get_trained_dataset(test_filename)
-    """
-    cap = cv2.VideoCapture("http://172.16.4.109:8080/shot.jpg")
-    #filename = "test/round_no_flash.avi"
-    #cap = c2.VideoCapture(filename)
+    
+    #cap = cv2.VideoCapture("http://172.16.4.109:8080/shot.jpg")
+    filename = "test/IMG_2224.MOV"
+    cap = cv2.VideoCapture(filename)
     skip = 0
     while(1):
         ret, frame = cap.read()
         if ret is True:
 
-            if skip % 50 == 0:
+            if skip % 30 == 0:
                 findcard(frame)
+                print "Frame ", skip
+                print 
             skip +=1
     
 
-            cv2.imshow("images", frame)
-
-
-            # if the 'q' key is pressed, stop the loop
-            if cv2.waitKey(1) & 0xFF == ord("q"):
-                break
+           
 
 
             # Debug: uncomment to see registered images
@@ -152,11 +145,13 @@ if __name__ == '__main__':
            
         else:
            break
-    cap.release()"""
-    print "DONE with training"
-    
-    img = cv2.imread('test/photo_1.JPG')
+    cap.release()
+    """
+    img = cv2.imread('test/photo.JPG')
+    #cv2.imshow("images", img)
+    #cv2.waitKey(0)
     findcard(img)
+    """
     print '************DONE!***************'
     
 
