@@ -1,7 +1,7 @@
 from cardrecognition import get_cards
 from helper import letter_to_suit, letter_to_number
 # from collections import namedtuple
-
+# Note that 1 and 3 are a team and 2 and 4 are team 
 
 class Round:
 
@@ -14,9 +14,10 @@ class Round:
     def __init__(self):
         self.round_cards = {}
         self.round_suit = None
-    def start(self, player_num):
+    def start(self, player_num,first_round):
 
-        self._get_bids()
+        if first_round == 1
+            self._get_bids()
 
         cards_played = []
         for i in range(4):
@@ -103,3 +104,47 @@ class Round:
                 print 'Please enter a number'
                 bid = raw_input()
             Round.bids.append(bid)
+
+if __name__ == '__main__':
+    Rounds = Round()
+    wins = {1: 0, 2: 0, 3: 0, 4:0}
+    Points_A = 0
+    Points_B = 0
+    bags_A=0
+    bags_B = 0
+    while(Points_A || Points_B < 500)
+        for Hand in range(13):
+            player_num = Hand%4+1
+            winner = Round.start(player_num,Hand+1)
+            wins[winner] = wins[winner]+1
+        Combined_bid_A = Rounds.bids[0]+Rounds.bids[2]
+        Combined_bid_B = Rounds.bids[1]+Rounds.bids[3]
+        Combined_ticks_A = wins[0]+wins[2]
+        Combined_ticks_B = wins[1]+wins[3]
+        # For Team A Calculation 
+        if Combined_bid_A > Combined_ticks_A:
+            Points_A  -= Combined_bid_A*10
+        if Combined_bid_A <=Combined_ticks_A:
+            Points_A += Combined_bid_A*10+(Combined_ticks_A-Combined_bid_A)
+            bags_A = (Combined_ticks_A-Combined_bid_A)
+        if Rounds.bids[0] == 0:
+            Points_A = Points_A+100 if wins[0] == 0 else Points_A-100
+        if Rounds.bids[2] == 0:
+            Points_A = Points_A+100 if wins[2] == 0 else Points_A-100
+        if bags_A => 10:
+            Points_A -=100
+            bags_A -=10
+        # For Team B Calculation 
+        if Combined_bid_B > Combined_ticks_B:
+            Points_B  -= Combined_bid_B*10
+        if Combined_bid_B <=Combined_ticks_B:
+            Points_B += Combined_bid_B*10+(Combined_ticks_B-Combined_bid_B)
+            bags_B = Combined_ticks_B-Combined_bid_B
+        if Rounds.bids[0] == 0:
+            Points_B = Points_B+100 if wins[1] == 0 else Points_B-100
+        if Rounds.bids[2] == 0:
+            Points_B = Points_B+100 if wins[3] == 0 else Points_B-100
+        if bags_B => 10:
+            Points_B -= 100
+            bags_B -=10
+
