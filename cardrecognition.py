@@ -102,6 +102,7 @@ def get_trained_dataset(training_file):
         return training
 
 def findcard(frame,filename=None):
+    training = get_trained_dataset(filename)
     num_cards = 4
     im = frame
     width = im.shape[0]
@@ -117,10 +118,12 @@ def findcard(frame,filename=None):
 
 
 def get_cards():
-    req = urllib.urlopen('') #Need to change this with time 
+    req = urllib.urlopen('http://172.16.4.68:8080/shot.jpg') #Need to change this with time 
     arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
     img = cv2.imdecode(arr,-1) # 'load it as it is'
-    return findcard(img)
+    
+    test_filename = "training/trained.csv"
+    return findcard(img,test_filename)
 
 if __name__ == '__main__':
     test_filename = "training/trained.csv"
