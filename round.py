@@ -1,5 +1,5 @@
 from cardrecognition import get_cards
-from helper import letter_to_suit, letter_to_number
+from helper import letter_to_suit, letter_to_number, card_value
 # from collections import namedtuple
 # Note that 1 and 3 are a team and 2 and 4 are team
 
@@ -10,7 +10,6 @@ class Round:
     unavailable_suits = {1: [], 2: [], 3: [], 4: []}  # assume this for the each player...
     spades_broken = False
     bids = []
-    card_values = {'A': 14, 'K': 13, 'Q': 12, 'J': 11}
 
     def __init__(self):
         self.round_cards = {}
@@ -42,13 +41,13 @@ class Round:
             else:
                 self.round_cards[card] = player_num
                 if not self.round_suit:
-                    self.round_suit = letter_to_suit[card.suit]
+                    self.round_suit = card.suit
                     print "The suit of the Round is ", letter_to_suit[card.suit]
-                if letter_to_suit[card.suit] == "Spades" and not Round.spades_broken:
+                if card.suit == "S" and not Round.spades_broken:
                     print "Spades is Broken!"
-                if self.round_suit != letter_to_suit[card.suit]:
-                    print "Player {0} doesn't have {1}".format(player_num, self.round_suit)
-                    Round.unavailable_suits[player_num].append(letter_to_suit[card.suit])
+                if self.round_suit != card.suit:
+                    print "Player {0} doesn't have {1}".format(player_num, letter_to_suit(self.round_suit))
+                    Round.unavailable_suits[player_num].append(card.suit)
                 Round.used_cards[card] = True
                 print "Player {0} played {1} of {2}".format(
                     player_num, letter_to_suit[card.suit],
@@ -65,36 +64,30 @@ class Round:
         # Check if player played a valid suit ?! Can't check this he might not have suit.
         # Check if the first player played spades when spades was not broken
         # Check if a used card was played
-        if letter_to_suit[card.suit] in Round.unavailable_suits[player_num]:
+        if card.suit in Round.unavailable_suits[player_num]:
             return True
-        if check_spades and letter_to_suit[card.suit] == "Spades":
+        elif check_spades and card.suit == "S" and not Round.spades_broken:
             print "Played Spades"
             return True
-        if Round.used_cards[card]:
+        elif Round.used_cards[card]:
             return True
         return False
 
     def _round_winner(self):
-        #use variable player_num as first player to determine who won
+        #use variable round_suit to determine who one
         #return player numer
-        for i in range(10):  # This needs to be added somewhere else
-            Round.card_values[str(i + 1)] = i + 1
-        maxcard_player = -1
-        maxcard = -1  # Need to change this
-        check_spade = False
+        maxcard = self.round_cards.keys()[0]  # Need to change this
         for card in self.round_cards:
-            cardnum = Round.card_values[card.number]
-            if card.suit == self.round_suit:
-                maxcard = max(cardnum, maxcard)
-                maxcard_player = self.round_cards[card] if maxcard < cardnum else maxcard_player
             if card.suit == "S":
-                maxcard = cardnum if not check_spade else max(maxcard, cardnum)
-                if not check_spade:
-                    maxcard_player = maxcard_player if cardnum < maxcard else self.round_cards[cardnum]
+                if maxcard.suit == "S":
+                    if card_value(card) > card_value(maxcard):
+                        maxcard = card
                 else:
-                    maxcard_player = self.round_cards[cardnum]
-
-        return maxcard_player
+                    maxcard = card
+            elif card.suit == self.round_suit and maxcard.suit != "S":
+                if card_value(card) > card_value(maxcard):
+                    maxcard = card
+        return self.round_cards[maxcard]
 
     def _get_bids(self):
         for i in range(4):
@@ -108,44 +101,44 @@ class Round:
 if __name__ == '__main__':
     Rounds = Round()
     wins = {1: 0, 2: 0, 3: 0, 4: 0}
-    Points_A = 0
-    Points_B = 0
+    points_A = 0
+    points_B = 0
     bags_A = 0
     bags_B = 0
-    while(Points_A or Points_B < 500):
+    while(points_A or points_B < 500):
         for Hand in range(13):
             player_num = Hand % 4 + 1
             winner = Round.start(player_num, Hand + 1)
             wins[winner] = wins[winner] + 1
-        Combined_bid_A = Rounds.bids[0] + Rounds.bids[2]
-        Combined_bid_B = Rounds.bids[1] + Rounds.bids[3]
-        Combined_tricks_A = wins[0] + wins[2]
-        Combined_tricks_B = wins[1] + wins[3]
+        combined_bid_A = Rounds.bids[0] + Rounds.bids[2]
+        combined_bid_B = Rounds.bids[1] + Rounds.bids[3]
+        combined_tricks_A = wins[0] + wins[2]
+        combined_tricks_B = wins[1] + wins[3]
 
         # For Team A Calculation
-        if Combined_bid_A > Combined_tricks_A:
-            Points_A -= Combined_bid_A * 10
-        if Combined_bid_A <= Combined_tricks_A:
-            Points_A += Combined_bid_A * 10 + (Combined_tricks_A - Combined_bid_A)
-            bags_A = (Combined_tricks_A - Combined_bid_A)
+        if combined_bid_A > combined_tricks_A:
+            points_A -= combined_bid_A * 10
+        if combined_bid_A <= combined_tricks_A:
+            points_A += combined_bid_A * 10 + (combined_tricks_A - combined_bid_A)
+            bags_A = (combined_tricks_A - combined_bid_A)
         if Rounds.bids[0] == 0:
-            Points_A = Points_A + 100 if wins[0] == 0 else Points_A - 100
+            points_A = points_A + 100 if wins[0] == 0 else points_A - 100
         if Rounds.bids[2] == 0:
-            Points_A = Points_A + 100 if wins[2] == 0 else Points_A - 100
+            points_A = points_A + 100 if wins[2] == 0 else points_A - 100
         if bags_A >= 10:
-            Points_A -= 100
+            points_A -= 100
             bags_A -= 10
 
         # For Team B Calculation
-        if Combined_bid_B > Combined_tricks_B:
-            Points_B -= Combined_bid_B * 10
-        if Combined_bid_B <= Combined_tricks_B:
-            Points_B += Combined_bid_B * 10 + (Combined_tricks_B - Combined_bid_B)
-            bags_B = Combined_tricks_B - Combined_bid_B
+        if combined_bid_B > combined_tricks_B:
+            points_B -= combined_bid_B * 10
+        if combined_bid_B <= combined_tricks_B:
+            points_B += combined_bid_B * 10 + (combined_tricks_B - combined_bid_B)
+            bags_B = combined_tricks_B - combined_bid_B
         if Rounds.bids[0] == 0:
-            Points_B = Points_B + 100 if wins[1] == 0 else Points_B - 100
+            points_B = points_B + 100 if wins[1] == 0 else points_B - 100
         if Rounds.bids[2] == 0:
-            Points_B = Points_B + 100 if wins[3] == 0 else Points_B - 100
+            points_B = points_B + 100 if wins[3] == 0 else points_B - 100
         if bags_B >= 10:
-            Points_B -= 100
+            points_B -= 100
             bags_B -= 10
