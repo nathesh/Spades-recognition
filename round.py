@@ -76,7 +76,7 @@ class Round:
     def _round_winner(self):
         #use variable round_suit to determine who one
         #return player numer
-        maxcard = self.round_cards.keys()[0]  # Need to change this
+        maxcard = self.round_cards.keys()[0]
         for card in self.round_cards:
             if card.suit == "S":
                 if maxcard.suit == "S":

@@ -44,7 +44,7 @@ def letter_to_suit(letter):
     return suit[letter]
 
 
-def letter_to_numer(letter):
+def letter_to_number(letter):
     return number[letter]
 
 
