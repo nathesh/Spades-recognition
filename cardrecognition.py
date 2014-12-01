@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import cv2
+import urllib
 import csv
 from collections import namedtuple
 ###############################################################################
@@ -110,9 +111,16 @@ def findcard(frame,filename=None):
         im = cv2.flip(im, 1)
     cards = [find_closest_card(training, c)
         for c in getCards(im, num_cards)]
-
     for c in cards:
         print c.number, c.suit
+    return cards
+
+
+def get_cards():
+    req = urllib.urlopen('') #Need to change this with time 
+    arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
+    img = cv2.imdecode(arr,-1) # 'load it as it is'
+    return findcard(img)
 
 if __name__ == '__main__':
     test_filename = "training/trained.csv"

@@ -119,6 +119,7 @@ if __name__ == '__main__':
             wins[winner] = wins[winner] + 1
         Combined_bid_A = Rounds.bids[0] + Rounds.bids[2]
         Combined_bid_B = Rounds.bids[1] + Rounds.bids[3]
+<<<<<<< HEAD
         Combined_tricks_A = wins[0] + wins[2]
         Combined_tricks_B = wins[1] + wins[3]
 
@@ -128,6 +129,16 @@ if __name__ == '__main__':
         if Combined_bid_A <= Combined_tricks_A:
             Points_A += Combined_bid_A * 10 + (Combined_tricks_A - Combined_bid_A)
             bags_A = (Combined_tricks_A - Combined_bid_A)
+=======
+        Combined_ticks_A = wins[0] + wins[2]
+        Combined_ticks_B = wins[1] + wins[3]
+        # For Team A Calculation
+        if Combined_bid_A > Combined_ticks_A:
+            Points_A -= Combined_bid_A * 10
+        if Combined_bid_A <= Combined_ticks_A:
+            Points_A += Combined_bid_A * 10 + (Combined_ticks_A - Combined_bid_A)
+            bags_A = (Combined_ticks_A - Combined_bid_A)
+>>>>>>> 87bf9c88d4cc0a856c9a895f58742541cdecce4b
         if Rounds.bids[0] == 0:
             Points_A = Points_A + 100 if wins[0] == 0 else Points_A - 100
         if Rounds.bids[2] == 0:
@@ -135,6 +146,7 @@ if __name__ == '__main__':
         if bags_A >= 10:
             Points_A -= 100
             bags_A -= 10
+<<<<<<< HEAD
             
         # For Team B Calculation
         if Combined_bid_B > Combined_tricks_B:
@@ -142,6 +154,14 @@ if __name__ == '__main__':
         if Combined_bid_B <= Combined_tricks_B:
             Points_B += Combined_bid_B * 10 + (Combined_tricks_B - Combined_bid_B)
             bags_B = Combined_tricks_B - Combined_bid_B
+=======
+        # For Team B Calculation
+        if Combined_bid_B > Combined_ticks_B:
+            Points_B -= Combined_bid_B * 10
+        if Combined_bid_B <= Combined_ticks_B:
+            Points_B += Combined_bid_B * 10 + (Combined_ticks_B - Combined_bid_B)
+            bags_B = Combined_ticks_B - Combined_bid_B
+>>>>>>> 87bf9c88d4cc0a856c9a895f58742541cdecce4b
         if Rounds.bids[0] == 0:
             Points_B = Points_B + 100 if wins[1] == 0 else Points_B - 100
         if Rounds.bids[2] == 0:
