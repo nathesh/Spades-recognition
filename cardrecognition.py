@@ -1,9 +1,10 @@
-import sys
+# import sys
 import numpy as np
 import cv2
 import urllib
 import csv
 from collections import namedtuple
+import logging
 ###############################################################################
 # Utility code from
 # http://git.io/vGi60A
@@ -11,6 +12,8 @@ from collections import namedtuple
 ###############################################################################
 
 Card = namedtuple('Card', 'number, suit')
+logging.basicConfig(filename='debug.log', level=logging.DEBUG)
+
 
 def rectify(h):
     h = h.reshape((4, 2))
@@ -49,7 +52,14 @@ def imgdiff(img1, img2):
 
 def find_closest_card(training, img):
     features = preprocess(img)
-    return sorted(training.values(), key=lambda x: imgdiff(x[1], features))[0][0]
+    s = sorted(training.values(), key=lambda x: imgdiff(x[1], features))
+
+    logging.debug("{0} {1}".format(s[0][0], imgdiff(s[0][1], features)))
+
+    # if imgdiff(s[0][1], features) < 600000:
+    return s[0][0]
+    # else:
+        # return None
 
 
 ###############################################################################
@@ -64,7 +74,7 @@ def getCards(im, numcards=4):
         thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:numcards]
-  
+    i = 0
     for card in contours:
         peri = cv2.arcLength(card, True)
         try:
@@ -81,7 +91,8 @@ def getCards(im, numcards=4):
 
         transform = cv2.getPerspectiveTransform(approx, h)
         warp = cv2.warpPerspective(im, transform, (450, 450))
-
+        cv2.imwrite("wrap_%d.jpg" % i, warp)
+        i += 1
         yield warp
 ###############################################################################
 # Get Training
@@ -101,9 +112,11 @@ def get_trained_dataset(training_file):
             i += 1
         return training
 
-def findcard(frame,filename=None):
+
+def findcard(frame, num_cards, filename=None):
+    logging.debug('*****************')
+    logging.debug('num_cards = {0}'.format(num_cards))
     training = get_trained_dataset(filename)
-    num_cards = 4
     im = frame
     width = im.shape[0]
     height = im.shape[1]
@@ -111,24 +124,26 @@ def findcard(frame,filename=None):
         im = cv2.transpose(im)
         im = cv2.flip(im, 1)
     cards = [find_closest_card(training, c)
-        for c in getCards(im, num_cards)]
-    for c in cards:
-        print c.number, c.suit
+             for c in getCards(im, num_cards)]
+    # for c in cards:
+    #     if not c:
+    #         cards.remove(c)
+        # else:
+        #     logging.debug("{0} {1}".format(c.number, c.suit))
     return cards
 
 
-def get_cards():
-    req = urllib.urlopen('http://172.16.4.68:8080/shot.jpg') #Need to change this with time 
+def get_cards(num_cards):
+    req = urllib.urlopen('http://10.146.9.168:8080/shot.jpg')
     arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
-    img = cv2.imdecode(arr,-1) # 'load it as it is'
-    
+    img = cv2.imdecode(arr, -1)
     test_filename = "training/trained.csv"
-    return findcard(img,test_filename)
+    return findcard(img, num_cards, test_filename)
 
 if __name__ == '__main__':
     test_filename = "training/trained.csv"
     training = get_trained_dataset(test_filename)
-    
+
     #cap = cv2.VideoCapture("http://172.16.4.109:8080/shot.jpg")
     filename = "test/IMG_2224.MOV"
     cap = cv2.VideoCapture(filename)
@@ -140,22 +155,16 @@ if __name__ == '__main__':
             if skip % 30 == 0:
                 findcard(frame)
                 print "Frame ", skip
-                print 
-            skip +=1
-    
-
-           
-
-
+                print
+            skip += 1
             # Debug: uncomment to see registered images
             # for i,c in enumerate(getCards(im,num_cards)):
             #   card = find_closest_card(training,c,)
             #   cv2.imshow(str(card),c)
             # cv2.waitKey(0)
-            
-           
+
         else:
-           break
+            break
     cap.release()
     """
     img = cv2.imread('test/photo.JPG')
@@ -164,6 +173,3 @@ if __name__ == '__main__':
     findcard(img)
     """
     print '************DONE!***************'
-    
-
-
