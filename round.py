@@ -99,7 +99,7 @@ class Round:
             Round.bids.append(bid)
 
 if __name__ == '__main__':
-    Rounds = Round()
+    r = Round()
     wins = {1: 0, 2: 0, 3: 0, 4: 0}
     points_A = 0
     points_B = 0
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     while(points_A or points_B < 500):
         for Hand in range(13):
             player_num = Hand % 4 + 1
-            winner = Round.start(player_num, Hand + 1)
+            winner = r.start(player_num, Hand + 1)
             wins[winner] = wins[winner] + 1
         combined_bid_A = Rounds.bids[0] + Rounds.bids[2]
         combined_bid_B = Rounds.bids[1] + Rounds.bids[3]

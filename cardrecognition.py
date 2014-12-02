@@ -49,7 +49,11 @@ def imgdiff(img1, img2):
 
 def find_closest_card(training, img):
     features = preprocess(img)
-    return sorted(training.values(), key=lambda x: imgdiff(x[1], features))[0][0]
+    result = sorted(training.values(), key=lambda x: imgdiff(x[1], features))[0][0]
+    if result>100000:
+        return None
+    else:
+        return result
 
 
 ###############################################################################
@@ -64,7 +68,7 @@ def getCards(im, numcards=4):
         thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:numcards]
-  
+    i = 0
     for card in contours:
         peri = cv2.arcLength(card, True)
         try:
@@ -81,7 +85,11 @@ def getCards(im, numcards=4):
 
         transform = cv2.getPerspectiveTransform(approx, h)
         warp = cv2.warpPerspective(im, transform, (450, 450))
-
+        rows,cols,__ = warp.shape
+        M = cv2.getRotationMatrix2D((cols/2,rows/2),90,1)
+        warp = cv2.warpAffine(warp,M,(cols,rows))
+        cv2.imwrite("warp_%d.jpg"%i,warp)
+        i+=1
         yield warp
 ###############################################################################
 # Get Training
@@ -113,12 +121,15 @@ def findcard(frame,filename=None):
     cards = [find_closest_card(training, c)
         for c in getCards(im, num_cards)]
     for c in cards:
-        print c.number, c.suit
+        if not c:
+            cards.remove(c)
+        else:
+            print c.number, c.suit
     return cards
 
 
 def get_cards():
-    req = urllib.urlopen('http://172.16.4.68:8080/shot.jpg') #Need to change this with time 
+    req = urllib.urlopen('http://10.145.56.99:8080/shot.jpg') #Need to change this with time 
     arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
     img = cv2.imdecode(arr,-1) # 'load it as it is'
     
@@ -165,5 +176,3 @@ if __name__ == '__main__':
     """
     print '************DONE!***************'
     
-
-

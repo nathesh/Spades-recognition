@@ -80,10 +80,8 @@ def get_training(training_labels_filename, training_image_filename, num_training
     im = cv2.imread(training_image_filename)
     for i, c in enumerate(getCards(im, num_training_cards)):
         if avoid_cards is None or (labels[i][0] not in avoid_cards[0] and labels[i][1] not in avoid_cards[1]):
-            training[i*4] = (labels[i], preprocess(c,0))
-            training[i*4+1] = (labels[i], preprocess(c,90))
-            training[i*4+2] = (labels[i], preprocess(c,270))
-            training[i*4+3] = (labels[i], preprocess(c,180))
+            training[i] = (labels[i], preprocess(c,0))
+                
 
     print "Done training"
     return training
