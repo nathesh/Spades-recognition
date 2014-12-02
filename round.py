@@ -54,6 +54,7 @@ class Round:
             player_num = (player_num + 1) % 4 if (player_num + 1) != 4 else 4
 
         winner = self._round_winner()
+        print "********************************"
         print "Player {0} wins the trick".format(winner)
 
         #Print winning team
@@ -76,7 +77,7 @@ class Round:
         # Check if the first player played spades when spades was not broken
         # Check if a used card was played
         if card.suit in self.unavailable_suits[player_num]:
-            print "Player should not have any {0} remaining".format(card.suit)
+            print "Player should not have any {0} remaining".format(letter_to_suit(card.suit))
             return True
         elif check_spades and card.suit == "S" and not self.spades_broken:
             print "Played Spades"
@@ -137,7 +138,6 @@ if __name__ == '__main__':
             hand += 1
 
         if penalty:
-            print result
             if result == -1 or result == -3:
                 points_A += 40
             else:
